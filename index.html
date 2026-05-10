@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDCDanh | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --text-main: #f8fafc;
+            --accent-yt: #ff0000;
+            --accent-cf: #318CE7;
+            --accent-game: #00f2fe;
+            --bg-dark: #020617; /* Slate 950 */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .liquid-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            filter: url('#goo'); 
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, var(--c) 0%, transparent 70%);
+            mix-blend-mode: screen;
+            transition: transform 0.2s ease-out;
+            will-change: transform, left, top;
+        }
+
+        .glass-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            backdrop-filter: blur(50px) saturate(120%);
+            -webkit-backdrop-filter: blur(50px) saturate(120%);
+            background: radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 0.4) 0%, rgba(2, 6, 23, 0.9) 100%);
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 var(--glass-highlight);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            transform: translateZ(1px);
+        }
+
+        .glass-panel:hover .glare { opacity: 1; }
+
+        .link-block {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            text-decoration: none;
+            color: white;
+            cursor: pointer;
+            group: hover;
+        }
+
+        .link-block:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .link-block.yt:hover { border-color: rgba(255, 0, 0, 0.5); box-shadow: 0 10px 30px rgba(255, 0, 0, 0.15); }
+        .link-block.cf:hover { border-color: rgba(49, 140, 231, 0.5); box-shadow: 0 10px 30px rgba(49, 140, 231, 0.15); }
+        .link-block.gh:hover { border-color: rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
+        
+        .avatar-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%; height: 120%;
+            background: radial-gradient(circle, rgba(0,242,254,0.3) 0%, transparent 70%);
+            z-index: -1;
+            border-radius: 50%;
+            filter: blur(20px);
+            animation: pulse-glow 4s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-500 selection:text-white">
+
+    <svg style="position: absolute; width: 0; height: 0;">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="25" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 40 -20" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- Background Layers -->
+    <div class="liquid-container" id="blob-container"></div>
+    <div class="glass-overlay"></div>
+
+    <main class="relative z-10 w-full max-w-lg mx-auto px-6 py-12 flex flex-col items-center">
+        
+        <!-- Profile Section -->
+        <div class="relative mb-8 perspective-1000 tilt-card">
+            <div class="avatar-glow"></div>
+            <!-- Ảnh cá nhân hình tròn -->
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-tr from-cyan-500 to-purple-600 shadow-2xl relative z-10">
+                <div class="w-full h-full rounded-full overflow-hidden border-2 border-[#020617] bg-[#020617]">
+                    <img src="https://sf-static.upanhlaylink.com/img/image_20260510f7fb663ba1bedf402de44f5731d6fb59.jpg" alt="TDCDanh Avatar" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+
+        <h1 class="text-3xl md:text-4xl font-bold tracking-wider mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+            TDCDanh
+        </h1>
+        <p class="text-gray-400 text-sm tracking-widest uppercase mb-10 text-center">
+            Software Engineer & Game Developer
+        </p>
+
+        <div class="w-full flex flex-col gap-4 perspective-1000">
+            
+            <!-- GitHub Block -->
+            <a href="https://github.com/TDCDanh" target="_blank" class="glass-panel link-block gh tilt-card group">
+                <div class="glare"></div>
+                <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold group-hover:text-white transition-colors">GitHub</h3>
+                    <p class="text-xs text-gray-400 mt-1"></p>
+                </div>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+
+            <!-- Codeforces Block -->
+            <a href="https://codeforces.com/profile/TDCDanh" target="_blank" class="glass-panel link-block cf tilt-card group">
+                <div class="glare"></div>
+                <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="13" width="4.5" height="8" rx="1" fill="#318CE7"/>
+                        <rect x="9.5" y="3" width="4.5" height="18" rx="1" fill="#FFD700"/>
+                        <rect x="16" y="8" width="4.5" height="13" rx="1" fill="#FF4500"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold group-hover:text-white transition-colors">Codeforces</h3>
+                    <p class="text-xs text-gray-400 mt-1"></p>
+                </div>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+
+            <!-- YouTube Block -->
+            <a href="https://www.youtube.com/@Coustain_daniel_vl_2007" target="_blank" class="glass-panel link-block yt tilt-card group">
+                <div class="glare"></div>
+                <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-[#ff0000]" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold group-hover:text-white transition-colors">YouTube Channel</h3>
+                    <p class="text-xs text-gray-400 mt-1"></p>
+                </div>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+
+            <!-- Packzone Block -->
+            <div class="mt-4 relative group tilt-card">
+                <!-- Viền phát sáng cho block Game -->
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+                
+                <div class="glass-panel p-5 relative">
+                    <div class="glare"></div>
+                    <div class="flex items-center mb-4">
+                        <!-- Logo Game Packzone -->
+                        <div class="w-16 h-16 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shadow-lg mr-4 flex-shrink-0">
+                            <img src="https://sf-static.upanhlaylink.com/img/image_20260510f57907ac03ad73538569342d3121b283.jpg" alt="Packzone Logo" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">Packzone</h3>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">NEW</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mt-1 line-clamp-2">
+                                First TDCDanh's game project - A thrilling 2D platformer with unique mechanics and vibrant pixel art. Available on Google Play!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Nút Tải trên Google Play -->
+                    <a href="https://play.google.com/store/apps/details?id=com.TDCDanh.PACKZONE" target="_blank" class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 group/btn hover:border-cyan-500/50">
+                        <svg class="w-6 h-6 text-green-400" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3.609 1.814L13.792 12 3.61 22.186c-.157-.145-.27-.323-.328-.528-.057-.205-.078-.42-.06-.632V3.036c-.015-.224.01-.45.074-.663.064-.214.183-.402.345-.559h-.032z"/>
+                            <path d="M14.636 12.846l5.244 5.244c.264.148.558.225.858.225s.594-.077.858-.225c.268-.15.485-.367.636-.636.15-.268.228-.562.228-.862V7.408c0-.3-.078-.594-.228-.862-.15-.268-.367-.485-.636-.636-.264-.148-.558-.225-.858-.225s-.594.077-.858.225l-5.244 5.244v.692z"/>
+                            <path d="M13.792 12l1.657 1.657L4.767 22.95c-.215.118-.456.178-.703.176-.176.002-.35-.03-.513-.095L13.792 12z"/>
+                            <path d="M13.792 12L3.551.969c.163-.065.337-.097.513-.095.247-.002.488.058.703.176l10.682 9.293L13.792 12z"/>
+                        </svg>
+                        <div class="flex flex-col items-start">
+                            <span class="text-[10px] text-gray-400 leading-none uppercase font-semibold">GET IT ON</span>
+                            <span class="text-base font-bold leading-tight">Google Play</span>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-500 group-hover/btn:text-cyan-400 transition-colors transform group-hover/btn:translate-x-1 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+        
+        <footer class="mt-12 text-xs text-gray-600 tracking-wider">
+            &copy; 2026 TDCDanh. All rights reserved.
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. LIQUID BLOBS BACKGROUND LOGIC
+            const container = document.getElementById('blob-container');
+            const colors = ['#00f2fe', '#318CE7', '#6b21a8', '#0f172a'];
+            const numBlobs = 6; 
+            const blobs = [];
+
+            for (let i = 0; i < numBlobs; i++) {
+                const blob = document.createElement('div');
+                blob.classList.add('blob');
+                
+                const size = Math.random() * 300 + 200; 
+                blob.style.width = `${size}px`;
+                blob.style.height = `${size}px`;
+                blob.style.setProperty('--c', colors[Math.floor(Math.random() * colors.length)]);
+                
+                container.appendChild(blob);
+
+                blobs.push({
+                    element: blob,
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    size: size
+                });
+            }
+
+            function animateBlobs() {
+                blobs.forEach(b => {
+                    b.x += b.vx;
+                    b.y += b.vy;
+                    if (b.x <= -b.size / 2 || b.x >= window.innerWidth - b.size / 2) b.vx *= -1;
+                    if (b.y <= -b.size / 2 || b.y >= window.innerHeight - b.size / 2) b.vy *= -1;
+                    b.element.style.transform = `translate(${b.x}px, ${b.y}px)`;
+                });
+                requestAnimationFrame(animateBlobs);
+            }
+            animateBlobs();
+
+            // 2. 3D TILT EFFECT CHO CÁC BLOCK
+            const tiltCards = document.querySelectorAll('.tilt-card');
+
+            tiltCards.forEach(card => {
+                const glare = card.querySelector('.glare');
+
+                card.addEventListener('mousemove', (e) => {
+                    // Nếu ở trên mobile thì hạn chế hiệu ứng tilt để tránh lag
+                    if(window.innerWidth < 768) return; 
+
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = ((y - centerY) / centerY) * -8; // Góc nghiêng nhẹ hơn cho block nhỏ
+                    const rotateY = ((x - centerX) / centerX) * 8;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                    if(glare) {
+                        glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.2) 0%, transparent 50%)`;
+                    }
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                    if(glare) {
+                        glare.style.background = `radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, transparent 50%)`;
+                    }
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                blobs.forEach(b => {
+                    if (b.x > window.innerWidth) b.x = window.innerWidth - b.size;
+                    if (b.y > window.innerHeight) b.y = window.innerHeight - b.size;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
