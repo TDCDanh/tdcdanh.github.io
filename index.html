@@ -22,6 +22,13 @@
         --bg-dark: #020617; /* Slate 950 */
       }
 
+      /* Ẩn con trỏ chuột mặc định của hệ thống trên máy tính */
+      @media (pointer: fine) {
+        body, a, button, .tilt-card, [role="button"] {
+          cursor: none !important;
+        }
+      }
+
       body {
         margin: 0;
         padding: 0;
@@ -33,6 +40,40 @@
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+
+      /* Định dạng Con trỏ chuột dạng chấm tròn sáng */
+      .custom-cursor-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #00f2fe;
+        border-radius: 50%;
+        position: fixed;
+        transform: translate(-50%, -50%) scale(1);
+        pointer-events: none;
+        z-index: 9999;
+        /* Hiệu ứng tỏa sáng Neon kép */
+        box-shadow: 0 0 15px #00f2fe, 0 0 30px rgba(0, 242, 254, 0.6);
+        transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
+                    height 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
+                    background-color 0.25s, 
+                    box-shadow 0.25s,
+                    transform 0.15s;
+      }
+
+      /* Khi rê chuột vào vùng tương tác: Chấm tròn mở rộng và tỏa sáng mạnh mẽ hơn */
+      .custom-cursor-dot.hovered {
+        width: 18px;
+        height: 18px;
+        background-color: #ffffff;
+        box-shadow: 0 0 20px #ffffff, 0 0 40px #00f2fe, 0 0 60px rgba(0, 242, 254, 0.8);
+      }
+
+      /* Khi nhấn chuột (Click Effect): Thu nhỏ đột ngột và chuyển sang ánh tím */
+      .custom-cursor-dot.clicked {
+        transform: translate(-50%, -50%) scale(0.6);
+        background-color: #a855f7;
+        box-shadow: 0 0 25px #a855f7, 0 0 50px rgba(168, 85, 247, 0.9);
       }
 
       .liquid-container {
@@ -184,6 +225,9 @@
     </style>
   </head>
   <body class="antialiased selection:bg-cyan-500 selection:text-white">
+    <!-- Chỉ sử dụng duy nhất 1 Element chấm tròn sáng cho con trỏ chuột -->
+    <div class="custom-cursor-dot" id="cursor-dot"></div>
+
     <svg style="position: absolute; width: 0; height: 0">
       <defs>
         <filter id="goo">
@@ -203,15 +247,15 @@
     <div class="liquid-container" id="blob-container"></div>
     <div class="glass-overlay"></div>
 
-    <!-- Main Container: Co giãn tối đa 1100px khi ở Desktop để lấp đầy không gian bị trống -->
+    <!-- Main Container -->
     <main
       class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-16 flex flex-col items-center"
     >
       
-      <!-- BỐ CỤC KIỂU BENTO GRID CHO DESKTOP -->
+      <!-- BỐ CỤC KIỂU BENTO GRID -->
       <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         
-        <!-- CỘT TRÁI: Profile & Education (Chiếm 5/12 cột trên màn hình lớn) -->
+        <!-- CỘT TRÁI: Profile & Education -->
         <div class="col-span-1 md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left gap-6">
           <!-- Profile Card -->
           <div class="w-full glass-panel p-6 flex flex-col items-center md:items-start relative">
@@ -248,13 +292,14 @@
             <!-- Đại học Cần Thơ -->
             <div class="glass-panel p-4 tilt-card group flex items-center">
               <div class="glare"></div>
+              <!-- Sử dụng nền trắng tinh (bg-white) để hòa quyện hoàn hảo với nền ảnh gốc -->
               <div
-                class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 mr-4"
+                class="w-12 h-12 rounded-full overflow-hidden bg-white border border-white/20 flex-shrink-0 mr-4 flex items-center justify-center shadow-md"
               >
                 <img
                   src="https://www.ctu.edu.vn/images/upload/logo.png"
                   alt="CTU Logo"
-                  class="w-full h-full object-contain p-1"
+                  class="w-full h-full object-contain p-1 rounded-full"
                 />
               </div>
               <div class="flex-1 min-w-0 text-left">
@@ -267,13 +312,14 @@
             <!-- CICT -->
             <div class="glass-panel p-4 tilt-card group flex items-center">
               <div class="glare"></div>
+              <!-- Sử dụng nền trắng tinh (bg-white) để hòa quyện hoàn hảo với nền ảnh gốc -->
               <div
-                class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 mr-4"
+                class="w-12 h-12 rounded-full overflow-hidden bg-white border border-white/20 flex-shrink-0 mr-4 flex items-center justify-center shadow-md"
               >
                 <img
                   src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSml8Rxo3MX3HSecqWuczzz-GTkuFazmL356A&s"
                   alt="CICT Logo"
-                  class="w-full h-full object-contain p-1"
+                  class="w-full h-full object-contain p-1.5 rounded-full"
                 />
               </div>
               <div class="flex-1 min-w-0 text-left">
@@ -285,7 +331,7 @@
           </div>
         </div>
 
-        <!-- CỘT PHẢI: Links & Projects (Chiếm 7/12 cột trên màn hình lớn) -->
+        <!-- CỘT PHẢI: Links & Projects -->
         <div class="col-span-1 md:col-span-7 flex flex-col gap-4 perspective-1000">
           <h2 class="text-xs text-gray-500 uppercase tracking-widest ml-2 font-bold text-center md:text-left">Socials & Projects</h2>
           
@@ -504,22 +550,136 @@
 
       </div>
 
-      <footer class="mt-16 text-xs text-gray-600 tracking-wider">
+      <!-- BỔ SUNG NÚT SAO CHÉP LIÊN KẾT (THAY BẰNG ICON CHAIN LINK GỌN GÀNG, KHÔNG CHỮ) -->
+      <div class="mt-12 flex justify-center w-full">
+        <button
+          id="btn-copy-link"
+          class="glass-panel w-14 h-14 flex items-center justify-center rounded-full tilt-card group transition-all duration-300 active:scale-95 border border-white/10 hover:border-cyan-500/30 shadow-lg"
+          title="Copy Portfolio Link"
+        >
+          <div class="glare"></div>
+          <!-- Sử dụng icon Chain Link nghiêng 45 độ chuẩn xác y hệt thiết kế tối giản -->
+          <svg
+            class="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- THÔNG BÁO COPIED TOAST (Ẩn mặc định, hiển thị hiệu ứng trượt mượt mà) -->
+      <div
+        id="toast-notification"
+        class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none transform translate-y-20 opacity-0 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)"
+      >
+        <div class="bg-slate-900/95 border border-cyan-500/40 px-5 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          <span class="text-xs font-semibold uppercase tracking-wider text-cyan-300">
+            Copied to Clipboard!
+          </span>
+        </div>
+      </div>
+
+      <footer class="mt-12 text-xs text-gray-600 tracking-wider">
         &copy; 2026 TDCDanh. All rights reserved.
       </footer>
     </main>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        // --- LOGIC CON TRỎ CHUỘT TÙY CHỈNH (CHỈ CHẤM TRÒN SÁNG) ---
+        const cursorDot = document.getElementById("cursor-dot");
+
+        // Ẩn con trỏ trên thiết bị di động không sử dụng chuột
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (isTouchDevice) {
+          cursorDot.style.display = "none";
+        } else {
+          // Bám theo sát chuyển động thực tế của chuột
+          window.addEventListener("mousemove", (e) => {
+            cursorDot.style.left = `${e.clientX}px`;
+            cursorDot.style.top = `${e.clientY}px`;
+          });
+
+          // Hiệu ứng Hover vào các thành phần tương tác
+          const updateHoverListeners = () => {
+            const interactiveElements = document.querySelectorAll("a, button, .tilt-card, [role='button']");
+            interactiveElements.forEach((el) => {
+              el.addEventListener("mouseenter", () => {
+                cursorDot.classList.add("hovered");
+              });
+              el.addEventListener("mouseleave", () => {
+                cursorDot.classList.remove("hovered");
+              });
+            });
+          };
+          updateHoverListeners();
+
+          // Hiệu ứng Click (Chớp/Thu nhỏ)
+          window.addEventListener("mousedown", () => {
+            cursorDot.classList.add("clicked");
+          });
+          window.addEventListener("mouseup", () => {
+            cursorDot.classList.remove("clicked");
+          });
+        }
+
+        // --- LOGIC SAO CHÉP LIÊN KẾT & TOAST ---
+        const copyBtn = document.getElementById("btn-copy-link");
+        const toast = document.getElementById("toast-notification");
+
+        if (copyBtn && toast) {
+          copyBtn.addEventListener("click", () => {
+            // Lấy URL hiện tại của trang
+            const urlToCopy = window.location.href;
+
+            // Cơ chế sao chép dự phòng an toàn cho môi trường Iframe
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = urlToCopy;
+            tempTextArea.style.position = "absolute";
+            tempTextArea.style.left = "-9999px";
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+              document.execCommand("copy");
+              
+              // Hiển thị hiệu ứng Toast chuyển động mượt mà
+              toast.classList.remove("translate-y-20", "opacity-0");
+              toast.classList.add("translate-y-0", "opacity-100");
+
+              // Tự động ẩn Toast sau 2.5 giây
+              setTimeout(() => {
+                toast.classList.remove("translate-y-0", "opacity-100");
+                toast.classList.add("translate-y-20", "opacity-0");
+              }, 2500);
+            } catch (err) {
+              console.error("Failed to copy link: ", err);
+            } finally {
+              document.body.removeChild(tempTextArea);
+            }
+          });
+        }
+
+        // --- LOGIC BUBBLES TRÔI NỔI NỀN ---
         const container = document.getElementById("blob-container");
         const colors = ["#00f2fe", "#318CE7", "#6b21a8", "#0f172a"];
-        const numBlobs = 8; // Tăng lên 8 blobs để lắp khoảng trống 2 bên rìa khi lướt màn hình rộng
+        const numBlobs = 8;
         const blobs = [];
 
         for (let i = 0; i < numBlobs; i++) {
           const blob = document.createElement("div");
           blob.classList.add("blob");
-          const size = Math.random() * 350 + 250; // Kích thước bong bóng lớn hơn
+          const size = Math.random() * 350 + 250;
           blob.style.width = `${size}px`;
           blob.style.height = `${size}px`;
           blob.style.setProperty(
@@ -551,6 +711,7 @@
         }
         animateBlobs();
 
+        // --- HIỆU ỨNG TILT 3D CARD ---
         const tiltCards = document.querySelectorAll(".tilt-card");
         tiltCards.forEach((card) => {
           const glare = card.querySelector(".glare");
