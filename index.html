@@ -24,7 +24,11 @@
 
       /* Ẩn con trỏ chuột mặc định của hệ thống trên máy tính */
       @media (pointer: fine) {
-        body, a, button, .tilt-card, [role="button"] {
+        body,
+        a,
+        button,
+        .tilt-card,
+        [role="button"] {
           cursor: none !important;
         }
       }
@@ -36,11 +40,60 @@
         color: var(--text-main);
         font-family: "Outfit", sans-serif;
         overflow-x: hidden;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
       }
+
+      /* ================= CANVAS INTRO STYLES ================= */
+      .canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1; /* Nằm dưới cùng để làm nền intro */
+        pointer-events: none;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Khoảng không gian cuộn kích hoạt chạy chuỗi 120 ảnh */
+      .scroll-buffer {
+        height: 300vh;
+        position: relative;
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      /* Wrapper bao bọc toàn bộ nội dung Bento Portfolio của bạn */
+      .portfolio-wrapper {
+        position: relative;
+        z-index: 10; /* Đẩy lên trên Canvas khi cuộn hết buffer */
+        background-color: var(
+          --bg-dark
+        ); /* Đổ nền đặc để che mượt Canvas bên dưới */
+        min-height: 100vh;
+      }
+
+      /* THÊM MỚI PHẦN NÀY DƯỚI ĐÂY */
+      .portfolio-wrapper::before {
+        content: "";
+        position: absolute;
+        bottom: 100%; /* Neo sát vào chính xác mép trên của portfolio */
+        left: 0;
+        width: 100%;
+        height: 250px; /* Chiều cao dải mờ. Có thể tăng/giảm tùy ý */
+        /* Tạo hiệu ứng mờ dần từ nền đen hòa vào video trong suốt */
+        background: linear-gradient(
+          to top,
+          var(--bg-dark) 0%,
+          transparent 100%
+        );
+        pointer-events: none; /* Đảm bảo không chặn thao tác click chuột của người dùng */
+      }
+      /* ======================================================= */
 
       /* Định dạng Con trỏ chuột dạng chấm tròn sáng */
       .custom-cursor-dot {
@@ -53,12 +106,15 @@
         pointer-events: none;
         z-index: 9999;
         /* Hiệu ứng tỏa sáng Neon kép */
-        box-shadow: 0 0 15px #00f2fe, 0 0 30px rgba(0, 242, 254, 0.6);
-        transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
-                    height 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
-                    background-color 0.25s, 
-                    box-shadow 0.25s,
-                    transform 0.15s;
+        box-shadow:
+          0 0 15px #00f2fe,
+          0 0 30px rgba(0, 242, 254, 0.6);
+        transition:
+          width 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+          height 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+          background-color 0.25s,
+          box-shadow 0.25s,
+          transform 0.15s;
       }
 
       /* Khi rê chuột vào vùng tương tác: Chấm tròn mở rộng và tỏa sáng mạnh mẽ hơn */
@@ -66,25 +122,31 @@
         width: 18px;
         height: 18px;
         background-color: #ffffff;
-        box-shadow: 0 0 20px #ffffff, 0 0 40px #00f2fe, 0 0 60px rgba(0, 242, 254, 0.8);
+        box-shadow:
+          0 0 20px #ffffff,
+          0 0 40px #00f2fe,
+          0 0 60px rgba(0, 242, 254, 0.8);
       }
 
       /* Khi nhấn chuột (Click Effect): Thu nhỏ đột ngột và chuyển sang ánh tím */
       .custom-cursor-dot.clicked {
         transform: translate(-50%, -50%) scale(0.6);
         background-color: #a855f7;
-        box-shadow: 0 0 25px #a855f7, 0 0 50px rgba(168, 85, 247, 0.9);
+        box-shadow:
+          0 0 25px #a855f7,
+          0 0 50px rgba(168, 85, 247, 0.9);
       }
 
       .liquid-container {
-        position: fixed;
+        position: absolute; /* Chuyển thành absolute để đi theo khung portfolio */
         top: 0;
         left: 0;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         z-index: -2;
         overflow: hidden;
         filter: url("#goo");
+        pointer-events: none;
       }
 
       .blob {
@@ -101,11 +163,11 @@
       }
 
       .glass-overlay {
-        position: fixed;
+        position: absolute; /* Chuyển thành absolute */
         top: 0;
         left: 0;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         z-index: -1;
         backdrop-filter: blur(50px) saturate(120%);
         -webkit-backdrop-filter: blur(50px) saturate(120%);
@@ -225,7 +287,6 @@
     </style>
   </head>
   <body class="antialiased selection:bg-cyan-500 selection:text-white">
-    <!-- Chỉ sử dụng duy nhất 1 Element chấm tròn sáng cho con trỏ chuột -->
     <div class="custom-cursor-dot" id="cursor-dot"></div>
 
     <svg style="position: absolute; width: 0; height: 0">
@@ -243,376 +304,476 @@
       </defs>
     </svg>
 
-    <!-- Background Layers -->
-    <div class="liquid-container" id="blob-container"></div>
-    <div class="glass-overlay"></div>
+    <div class="canvas-container">
+      <canvas id="hero-canvas"></canvas>
+    </div>
 
-    <!-- Main Container -->
-    <main
-      class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-16 flex flex-col items-center"
-    >
-      
-      <!-- BỐ CỤC KIỂU BENTO GRID -->
-      <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        
-        <!-- CỘT TRÁI: Profile & Education -->
-        <div class="col-span-1 md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left gap-6">
-          <!-- Profile Card -->
-          <div class="w-full glass-panel p-6 flex flex-col items-center md:items-start relative">
-            <div class="glare"></div>
-            
-            <div class="relative mb-4 perspective-1000 tilt-card">
-              <div class="avatar-glow"></div>
-              <div
-                class="w-28 h-28 md:w-32 md:h-32 rounded-full p-1 bg-gradient-to-tr from-cyan-500 to-purple-600 shadow-2xl relative z-10"
-              >
+    <div class="scroll-buffer"></div>
+
+    <div class="portfolio-wrapper">
+      <div class="liquid-container" id="blob-container"></div>
+      <div class="glass-overlay"></div>
+
+      <main
+        class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-16 flex flex-col items-center"
+      >
+        <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+          <div
+            class="col-span-1 md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left gap-6"
+          >
+            <div
+              class="w-full glass-panel p-6 flex flex-col items-center md:items-start relative"
+            >
+              <div class="glare"></div>
+
+              <div class="relative mb-4 perspective-1000 tilt-card">
+                <div class="avatar-glow"></div>
                 <div
-                  class="w-full h-full rounded-full overflow-hidden border-2 border-[#020617] bg-[#020617]"
+                  class="w-28 h-28 md:w-32 md:h-32 rounded-full p-1 bg-gradient-to-tr from-cyan-500 to-purple-600 shadow-2xl relative z-10"
                 >
-                  <img
-                    src="https://sf-static.upanhlaylink.com/img/image_202605308e530f50dce502d38df4a9ce1fa9f4e0.jpg"
-                    alt="TDCDanh Avatar"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <h1
-              class="text-3xl md:text-4xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400"
-            >
-              TDCDanh
-            </h1>
-          </div>
-
-          <!-- EDUCATION SECTION -->
-          <div class="w-full flex flex-col gap-3 perspective-1000">
-            <h2 class="text-xs text-gray-500 uppercase tracking-widest ml-2 font-bold text-center md:text-left">Education</h2>
-            
-            <!-- Đại học Cần Thơ -->
-            <div class="glass-panel p-4 tilt-card group flex items-center">
-              <div class="glare"></div>
-              <!-- Sử dụng nền trắng tinh (bg-white) để hòa quyện hoàn hảo với nền ảnh gốc -->
-              <div
-                class="w-12 h-12 rounded-full overflow-hidden bg-white border border-white/20 flex-shrink-0 mr-4 flex items-center justify-center shadow-md"
-              >
-                <img
-                  src="https://www.ctu.edu.vn/images/upload/logo.png"
-                  alt="CTU Logo"
-                  class="w-full h-full object-contain p-1 rounded-full"
-                />
-              </div>
-              <div class="flex-1 min-w-0 text-left">
-                <h3 class="text-base md:text-lg font-bold text-white leading-tight">
-                  Can Tho University
-                </h3>
-              </div>
-            </div>
-
-            <!-- CICT -->
-            <div class="glass-panel p-4 tilt-card group flex items-center">
-              <div class="glare"></div>
-              <!-- Sử dụng nền trắng tinh (bg-white) để hòa quyện hoàn hảo với nền ảnh gốc -->
-              <div
-                class="w-12 h-12 rounded-full overflow-hidden bg-white border border-white/20 flex-shrink-0 mr-4 flex items-center justify-center shadow-md"
-              >
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSml8Rxo3MX3HSecqWuczzz-GTkuFazmL356A&s"
-                  alt="CICT Logo"
-                  class="w-full h-full object-contain p-1.5 rounded-full"
-                />
-              </div>
-              <div class="flex-1 min-w-0 text-left">
-                <h3 class="text-base md:text-lg font-bold text-white leading-tight">
-                  CICT
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CỘT PHẢI: Links & Projects -->
-        <div class="col-span-1 md:col-span-7 flex flex-col gap-4 perspective-1000">
-          <h2 class="text-xs text-gray-500 uppercase tracking-widest ml-2 font-bold text-center md:text-left">Socials & Projects</h2>
-          
-          <!-- GitHub Block -->
-          <a
-            href="https://github.com/TDCDanh"
-            target="_blank"
-            class="glass-panel link-block gh tilt-card group"
-          >
-            <div class="glare"></div>
-            <div
-              class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"
-            >
-              <svg
-                class="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-                />
-              </svg>
-            </div>
-            <div class="flex-1 text-left">
-              <h3
-                class="text-lg font-semibold group-hover:text-white transition-colors"
-              >
-                GitHub
-              </h3>
-            </div>
-            <svg
-              class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              ></path>
-            </svg>
-          </a>
-
-          <!-- Codeforces Block -->
-          <a
-            href="https://codeforces.com/profile/TDCDanh"
-            target="_blank"
-            class="glass-panel link-block cf tilt-card group"
-          >
-            <div class="glare"></div>
-            <div
-              class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"
-            >
-              <svg
-                class="w-6 h-6"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect x="3" y="13" width="4.5" height="8" rx="1" fill="#318CE7" />
-                <rect
-                  x="9.5"
-                  y="3"
-                  width="4.5"
-                  height="18"
-                  rx="1"
-                  fill="#FFD700"
-                />
-                <rect
-                  x="16"
-                  y="8"
-                  width="4.5"
-                  height="13"
-                  rx="1"
-                  fill="#FF4500"
-                />
-              </svg>
-            </div>
-            <div class="flex-1 text-left">
-              <h3
-                class="text-lg font-semibold group-hover:text-white transition-colors"
-              >
-                Codeforces
-              </h3>
-            </div>
-            <svg
-              class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              ></path>
-            </svg>
-          </a>
-
-          <!-- YouTube Block -->
-          <a
-            href="https://youtube.com/@tdcdanh?si=UKCl_A1gsssgBuWG"
-            target="_blank"
-            class="glass-panel link-block yt tilt-card group"
-          >
-            <div class="glare"></div>
-            <div
-              class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"
-            >
-              <svg
-                class="w-6 h-6 text-[#ff0000]"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-                />
-              </svg>
-            </div>
-            <div class="flex-1 text-left">
-              <h3
-                class="text-lg font-semibold group-hover:text-white transition-colors"
-              >
-                YouTube
-              </h3>
-            </div>
-            <svg
-              class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              ></path>
-            </svg>
-          </a>
-
-          <!-- Packzone Block (Google Play) -->
-          <div class="relative group tilt-card w-full">
-            <div
-              class="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500"
-            ></div>
-            <div class="glass-panel p-5 relative">
-              <div class="glare"></div>
-              <div class="flex flex-col sm:flex-row items-start sm:items-center mb-4 gap-4">
-                <div
-                  class="w-16 h-16 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shadow-lg flex-shrink-0"
-                >
-                  <img
-                    src="https://sf-static.upanhlaylink.com/img/image_20260510f57907ac03ad73538569342d3121b283.jpg"
-                    alt="Packzone Logo"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-                <div class="text-left">
-                  <div class="flex items-center gap-2">
-                    <h3
-                      class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400"
-                    >
-                      Packzone
-                    </h3>
-                    <span
-                      class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
-                      >NEW</span
-                    >
+                  <div
+                    class="w-full h-full rounded-full overflow-hidden border-2 border-[#020617] bg-[#020617]"
+                  >
+                    <img
+                      src="https://sf-static.upanhlaylink.com/img/image_202605308e530f50dce502d38df4a9ce1fa9f4e0.jpg"
+                      alt="TDCDanh Avatar"
+                      class="w-full h-full object-cover"
+                    />
                   </div>
-                  <p class="text-sm text-gray-400 mt-1 line-clamp-2">
-                    First TDCDanh's game project - A 2D platformer with unique
-                    mechanics.
-                  </p>
                 </div>
               </div>
-              <a
-                href="https://play.google.com/store/apps/details?id=com.TDCDanh.PACKZONE"
-                target="_blank"
-                class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 group/btn hover:border-cyan-500/50"
+
+              <h1
+                class="text-3xl md:text-4xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400"
               >
-                <img
-                  src="https://png.pngtree.com/png-vector/20230817/ourmid/pngtree-google-play-download-icon-vector-png-image_9183313.png"
-                  alt="Google Play"
-                  class="w-8 md:w-9 h-auto object-contain"
-                />
-                <div class="flex flex-col items-start">
-                  <span
-                    class="text-[10px] text-gray-400 leading-none uppercase font-semibold"
-                    >GET IT ON</span
-                  >
-                  <span class="text-base font-bold leading-tight text-white"
-                    >Google Play</span
-                  >
+                TDCDanh
+              </h1>
+            </div>
+
+            <div class="w-full flex flex-col gap-3 perspective-1000">
+              <h2
+                class="text-xs text-gray-500 uppercase tracking-widest ml-2 font-bold text-center md:text-left"
+              >
+                Education
+              </h2>
+
+              <div class="glass-panel p-4 tilt-card group flex items-center">
+                <div class="glare"></div>
+                <div
+                  class="w-12 h-12 rounded-full overflow-hidden bg-white border border-white/20 flex-shrink-0 mr-4 flex items-center justify-center shadow-md"
+                >
+                  <img
+                    src="https://www.ctu.edu.vn/images/upload/logo.png"
+                    alt="CTU Logo"
+                    class="w-full h-full object-contain p-1 rounded-full"
+                  />
                 </div>
+                <div class="flex-1 min-w-0 text-left">
+                  <h3
+                    class="text-base md:text-lg font-bold text-white leading-tight"
+                  >
+                    Can Tho University
+                  </h3>
+                </div>
+              </div>
+
+              <div class="glass-panel p-4 tilt-card group flex items-center">
+                <div class="glare"></div>
+                <div
+                  class="w-12 h-12 rounded-full overflow-hidden bg-white border border-white/20 flex-shrink-0 mr-4 flex items-center justify-center shadow-md"
+                >
+                  <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSml8Rxo3MX3HSecqWuczzz-GTkuFazmL356A&s"
+                    alt="CICT Logo"
+                    class="w-full h-full object-contain p-1.5 rounded-full"
+                  />
+                </div>
+                <div class="flex-1 min-w-0 text-left">
+                  <h3
+                    class="text-base md:text-lg font-bold text-white leading-tight"
+                  >
+                    CICT
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="col-span-1 md:col-span-7 flex flex-col gap-4 perspective-1000"
+          >
+            <h2
+              class="text-xs text-gray-500 uppercase tracking-widest ml-2 font-bold text-center md:text-left"
+            >
+              Socials & Projects
+            </h2>
+
+            <a
+              href="https://github.com/TDCDanh"
+              target="_blank"
+              class="glass-panel link-block gh tilt-card group"
+            >
+              <div class="glare"></div>
+              <div
+                class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"
+              >
                 <svg
-                  class="w-5 h-5 text-gray-500 group-hover/btn:text-cyan-400 transition-colors transform group-hover/btn:translate-x-1 ml-auto"
-                  fill="none"
-                  stroke="currentColor"
+                  class="w-6 h-6 text-white"
+                  fill="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  ></path>
+                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                  />
                 </svg>
-              </a>
+              </div>
+              <div class="flex-1 text-left">
+                <h3
+                  class="text-lg font-semibold group-hover:text-white transition-colors"
+                >
+                  GitHub
+                </h3>
+              </div>
+              <svg
+                class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+
+            <a
+              href="https://codeforces.com/profile/TDCDanh"
+              target="_blank"
+              class="glass-panel link-block cf tilt-card group"
+            >
+              <div class="glare"></div>
+              <div
+                class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="3"
+                    y="13"
+                    width="4.5"
+                    height="8"
+                    rx="1"
+                    fill="#318CE7"
+                  />
+                  <rect
+                    x="9.5"
+                    y="3"
+                    width="4.5"
+                    height="18"
+                    rx="1"
+                    fill="#FFD700"
+                  />
+                  <rect
+                    x="16"
+                    y="8"
+                    width="4.5"
+                    height="13"
+                    rx="1"
+                    fill="#FF4500"
+                  />
+                </svg>
+              </div>
+              <div class="flex-1 text-left">
+                <h3
+                  class="text-lg font-semibold group-hover:text-white transition-colors"
+                >
+                  Codeforces
+                </h3>
+              </div>
+              <svg
+                class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+
+            <a
+              href="https://youtube.com/@tdcdanh?si=UKCl_A1gsssgBuWG"
+              target="_blank"
+              class="glass-panel link-block yt tilt-card group"
+            >
+              <div class="glare"></div>
+              <div
+                class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-6 h-6 text-[#ff0000]"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <!-- Đoạn mã SVG đã được fix lại cú pháp thay vì d="... $.502 ..." -->
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93 .502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                  />
+                </svg>
+              </div>
+              <div class="flex-1 text-left">
+                <h3
+                  class="text-lg font-semibold group-hover:text-white transition-colors"
+                >
+                  YouTube
+                </h3>
+              </div>
+              <svg
+                class="w-5 h-5 text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+
+            <div class="relative group tilt-card w-full">
+              <div
+                class="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500"
+              ></div>
+              <div class="glass-panel p-5 relative">
+                <div class="glare"></div>
+                <div
+                  class="flex flex-col sm:flex-row items-start sm:items-center mb-4 gap-4"
+                >
+                  <div
+                    class="w-16 h-16 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shadow-lg flex-shrink-0"
+                  >
+                    <img
+                      src="https://sf-static.upanhlaylink.com/img/image_20260510f57907ac03ad73538569342d3121b283.jpg"
+                      alt="Packzone Logo"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div class="text-left">
+                    <div class="flex items-center gap-2">
+                      <h3
+                        class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400"
+                      >
+                        Packzone
+                      </h3>
+                      <span
+                        class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                        >NEW</span
+                      >
+                    </div>
+                    <p class="text-sm text-gray-400 mt-1 line-clamp-2">
+                      First TDCDanh's game project - A 2D platformer with unique
+                      mechanics.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.TDCDanh.PACKZONE"
+                  target="_blank"
+                  class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 group/btn hover:border-cyan-500/50"
+                >
+                  <img
+                    src="https://png.pngtree.com/png-vector/20230817/ourmid/pngtree-google-play-download-icon-vector-png-image_9183313.png"
+                    alt="Google Play"
+                    class="w-8 md:w-9 h-auto object-contain"
+                  />
+                  <div class="flex flex-col items-start">
+                    <span
+                      class="text-[10px] text-gray-400 leading-none uppercase font-semibold"
+                      >GET IT ON</span
+                    >
+                    <span class="text-base font-bold leading-tight text-white"
+                      >Google Play</span
+                    >
+                  </div>
+                  <svg
+                    class="w-5 h-5 text-gray-500 group-hover/btn:text-cyan-400 transition-colors transform group-hover/btn:translate-x-1 ml-auto"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    ></path>
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-      </div>
-
-      <!-- BỔ SUNG NÚT SAO CHÉP LIÊN KẾT (THAY BẰNG ICON CHAIN LINK GỌN GÀNG, KHÔNG CHỮ) -->
-      <div class="mt-12 flex justify-center w-full">
-        <button
-          id="btn-copy-link"
-          class="glass-panel w-14 h-14 flex items-center justify-center rounded-full tilt-card group transition-all duration-300 active:scale-95 border border-white/10 hover:border-cyan-500/30 shadow-lg"
-          title="Copy Portfolio Link"
-        >
-          <div class="glare"></div>
-          <!-- Sử dụng icon Chain Link nghiêng 45 độ chuẩn xác y hệt thiết kế tối giản -->
-          <svg
-            class="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+        <div class="mt-12 flex justify-center w-full">
+          <button
+            id="btn-copy-link"
+            class="glass-panel w-14 h-14 flex items-center justify-center rounded-full tilt-card group transition-all duration-300 active:scale-95 border border-white/10 hover:border-cyan-500/30 shadow-lg"
+            title="Copy Portfolio Link"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-            />
-          </svg>
-        </button>
-      </div>
-
-      <!-- THÔNG BÁO COPIED TOAST (Ẩn mặc định, hiển thị hiệu ứng trượt mượt mà) -->
-      <div
-        id="toast-notification"
-        class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none transform translate-y-20 opacity-0 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)"
-      >
-        <div class="bg-slate-900/95 border border-cyan-500/40 px-5 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-          <span class="text-xs font-semibold uppercase tracking-wider text-cyan-300">
-            Copied to Clipboard!
-          </span>
+            <div class="glare"></div>
+            <svg
+              class="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+              />
+            </svg>
+          </button>
         </div>
-      </div>
 
-      <footer class="mt-12 text-xs text-gray-600 tracking-wider">
-        &copy; 2026 TDCDanh. All rights reserved.
-      </footer>
-    </main>
+        <div
+          id="toast-notification"
+          class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none transform translate-y-20 opacity-0 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)"
+        >
+          <div
+            class="bg-slate-900/95 border border-cyan-500/40 px-5 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3"
+          >
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+            <span
+              class="text-xs font-semibold uppercase tracking-wider text-cyan-300"
+            >
+              Copied to Clipboard!
+            </span>
+          </div>
+        </div>
+
+        <footer class="mt-12 text-xs text-gray-600 tracking-wider">
+          &copy; 2026 TDCDanh. All rights reserved.
+        </footer>
+      </main>
+    </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // --- LOGIC CON TRỎ CHUỘT TÙY CHỈNH (CHỈ CHẤM TRÒN SÁNG) ---
-        const cursorDot = document.getElementById("cursor-dot");
+        // ================= LOGIC CANVAS CHUỖI ẢNH (INTRO) =================
+        const canvas = document.getElementById("hero-canvas");
+        const context = canvas.getContext("2d");
+        const frameCount = 120;
 
-        // Ẩn con trỏ trên thiết bị di động không sử dụng chuột
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const currentFrame = (index) =>
+          `images/ezgif-frame-${index.toString().padStart(3, "0")}.jpg`;
+
+        const images = [];
+        for (let i = 1; i <= frameCount; i++) {
+          const img = new Image();
+          img.src = currentFrame(i);
+          images.push(img);
+        }
+
+        function resizeCanvas() {
+          const dpr = window.devicePixelRatio || 1;
+          canvas.width = window.innerWidth * dpr;
+          canvas.height = window.innerHeight * dpr;
+
+          context.imageSmoothingEnabled = true;
+          context.imageSmoothingQuality = "high";
+          renderCanvas();
+        }
+
+        function renderCanvas() {
+          const scrollTop = window.scrollY;
+          // Tận dụng chiều cao scroll-buffer thực tế để tính toán tỷ lệ ảnh
+          const maxScrollTop = window.innerHeight * 3;
+          let scrollFraction = scrollTop / maxScrollTop;
+
+          if (scrollFraction > 1) scrollFraction = 1;
+          if (scrollFraction < 0) scrollFraction = 0;
+
+          const frameIndex = Math.min(
+            frameCount - 1,
+            Math.floor(scrollFraction * frameCount),
+          );
+
+          const activeImage = images[frameIndex];
+          if (activeImage && activeImage.complete) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            const imgRatio = activeImage.width / activeImage.height;
+            const canvasRatio = canvas.width / canvas.height;
+            let renderWidth, renderHeight, xOffset, yOffset;
+
+            if (canvasRatio > imgRatio) {
+              renderWidth = canvas.width;
+              renderHeight = canvas.width / imgRatio;
+              xOffset = 0;
+              yOffset = (canvas.height - renderHeight) / 2;
+            } else {
+              renderWidth = canvas.height * imgRatio;
+              renderHeight = canvas.height;
+              xOffset = (canvas.width - renderWidth) / 2;
+              yOffset = 0;
+            }
+            context.drawImage(
+              activeImage,
+              xOffset,
+              yOffset,
+              renderWidth,
+              renderHeight,
+            );
+          }
+        }
+
+        images[0].onload = () => {
+          resizeCanvas();
+        };
+        window.addEventListener(
+          "scroll",
+          () => {
+            requestAnimationFrame(renderCanvas);
+          },
+          { passive: true },
+        );
+        window.addEventListener("resize", resizeCanvas);
+        // =================================================================
+
+        // --- LOGIC CON TRỎ CHUỘT TÙY CHỈNH ---
+        const cursorDot = document.getElementById("cursor-dot");
+        const isTouchDevice =
+          "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
         if (isTouchDevice) {
           cursorDot.style.display = "none";
         } else {
-          // Bám theo sát chuyển động thực tế của chuột
           window.addEventListener("mousemove", (e) => {
             cursorDot.style.left = `${e.clientX}px`;
             cursorDot.style.top = `${e.clientY}px`;
           });
 
-          // Hiệu ứng Hover vào các thành phần tương tác
           const updateHoverListeners = () => {
-            const interactiveElements = document.querySelectorAll("a, button, .tilt-card, [role='button']");
+            const interactiveElements = document.querySelectorAll(
+              "a, button, .tilt-card, [role='button']",
+            );
             interactiveElements.forEach((el) => {
               el.addEventListener("mouseenter", () => {
                 cursorDot.classList.add("hovered");
@@ -624,7 +785,6 @@
           };
           updateHoverListeners();
 
-          // Hiệu ứng Click (Chớp/Thu nhỏ)
           window.addEventListener("mousedown", () => {
             cursorDot.classList.add("clicked");
           });
@@ -639,25 +799,19 @@
 
         if (copyBtn && toast) {
           copyBtn.addEventListener("click", () => {
-            // Lấy URL hiện tại của trang
             const urlToCopy = window.location.href;
-
-            // Cơ chế sao chép dự phòng an toàn cho môi trường Iframe
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = urlToCopy;
             tempTextArea.style.position = "absolute";
             tempTextArea.style.left = "-9999px";
             document.body.appendChild(tempTextArea);
             tempTextArea.select();
-            
+
             try {
               document.execCommand("copy");
-              
-              // Hiển thị hiệu ứng Toast chuyển động mượt mà
               toast.classList.remove("translate-y-20", "opacity-0");
               toast.classList.add("translate-y-0", "opacity-100");
 
-              // Tự động ẩn Toast sau 2.5 giây
               setTimeout(() => {
                 toast.classList.remove("translate-y-0", "opacity-100");
                 toast.classList.add("translate-y-20", "opacity-0");
@@ -670,11 +824,22 @@
           });
         }
 
-        // --- LOGIC BUBBLES TRÔI NỔI NỀN ---
+        // --- LOGIC BUBBLES TRÔI NỔI NỀN (Tự động thích ứng vùng Portfolio) ---
         const container = document.getElementById("blob-container");
         const colors = ["#00f2fe", "#318CE7", "#6b21a8", "#0f172a"];
         const numBlobs = 8;
         const blobs = [];
+
+        // Đọc chiều cao chuẩn từ vùng portfolio thực tế
+        const getWrapperBounds = () => {
+          const wrapper = document.querySelector(".portfolio-wrapper");
+          return {
+            width: window.innerWidth,
+            height: wrapper ? wrapper.offsetHeight : window.innerHeight,
+          };
+        };
+
+        let bounds = getWrapperBounds();
 
         for (let i = 0; i < numBlobs; i++) {
           const blob = document.createElement("div");
@@ -687,10 +852,11 @@
             colors[Math.floor(Math.random() * colors.length)],
           );
           container.appendChild(blob);
+
           blobs.push({
             element: blob,
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * bounds.width,
+            y: Math.random() * bounds.height,
             vx: (Math.random() - 0.5) * 1.2,
             vy: (Math.random() - 0.5) * 1.2,
             size: size,
@@ -701,9 +867,9 @@
           blobs.forEach((b) => {
             b.x += b.vx;
             b.y += b.vy;
-            if (b.x <= -b.size / 2 || b.x >= window.innerWidth - b.size / 2)
+            if (b.x <= -b.size / 2 || b.x >= bounds.width - b.size / 2)
               b.vx *= -1;
-            if (b.y <= -b.size / 2 || b.y >= window.innerHeight - b.size / 2)
+            if (b.y <= -b.size / 2 || b.y >= bounds.height - b.size / 2)
               b.vy *= -1;
             b.element.style.transform = `translate(${b.x}px, ${b.y}px)`;
           });
@@ -738,9 +904,10 @@
         });
 
         window.addEventListener("resize", () => {
+          bounds = getWrapperBounds();
           blobs.forEach((b) => {
-            if (b.x > window.innerWidth) b.x = window.innerWidth - b.size;
-            if (b.y > window.innerHeight) b.y = window.innerHeight - b.size;
+            if (b.x > bounds.width) b.x = bounds.width - b.size;
+            if (b.y > bounds.height) b.y = bounds.height - b.size;
           });
         });
       });
