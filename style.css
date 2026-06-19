@@ -1,0 +1,246 @@
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
+  --text-main: #f8fafc;
+  --accent-yt: #ff0000;
+  --accent-cf: #318ce7;
+  --accent-game: #00f2fe;
+  --bg-dark: #020617; /* Slate 950 */
+}
+
+/* Ẩn con trỏ chuột mặc định của hệ thống trên máy tính */
+@media (pointer: fine) {
+  body,
+  a,
+  button,
+  .tilt-card,
+  [role="button"] {
+    cursor: none !important;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: "Outfit", sans-serif;
+  overflow-x: hidden;
+}
+
+/* ================= CANVAS INTRO STYLES ================= */
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Tăng buffer lên 400vh để hành trình cuộn 100 frames mượt mà và dài hơn */
+.scroll-buffer {
+  height: 400vh;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Trả lại position: relative để nội dung KHÔNG BỊ MẤT */
+.portfolio-wrapper {
+  position: relative;
+  z-index: 10;
+  background-color: var(--bg-dark);
+  min-height: 100vh;
+}
+
+/* Cầu nối gradient làm mờ ranh giới giữa video và portfolio */
+.portfolio-wrapper::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 250px;
+  background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%);
+  pointer-events: none;
+}
+/* ======================================================= */
+
+/* Định dạng Con trỏ chuột dạng chấm tròn sáng */
+.custom-cursor-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #00f2fe;
+  border-radius: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow:
+    0 0 15px #00f2fe,
+    0 0 30px rgba(0, 242, 254, 0.6);
+  transition:
+    width 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+    height 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+    background-color 0.25s,
+    box-shadow 0.25s,
+    transform 0.15s;
+}
+
+.custom-cursor-dot.hovered {
+  width: 18px;
+  height: 18px;
+  background-color: #ffffff;
+  box-shadow:
+    0 0 20px #ffffff,
+    0 0 40px #00f2fe,
+    0 0 60px rgba(0, 242, 254, 0.8);
+}
+
+.custom-cursor-dot.clicked {
+  transform: translate(-50%, -50%) scale(0.6);
+  background-color: #a855f7;
+  box-shadow:
+    0 0 25px #a855f7,
+    0 0 50px rgba(168, 85, 247, 0.9);
+}
+
+.liquid-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  overflow: hidden;
+  filter: url("#goo");
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, var(--c) 0%, transparent 70%);
+  mix-blend-mode: screen;
+  transition: transform 0.2s ease-out;
+  will-change: transform, left, top;
+}
+
+.glass-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  backdrop-filter: blur(50px) saturate(120%);
+  -webkit-backdrop-filter: blur(50px) saturate(120%);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(2, 6, 23, 0.4) 0%,
+    rgba(2, 6, 23, 0.9) 100%
+  );
+  pointer-events: none;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 var(--glass-highlight);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  transform: translateZ(1px);
+}
+
+.glass-panel:hover .glare {
+  opacity: 1;
+}
+
+.link-block {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  height: 100%;
+}
+
+.link-block:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.link-block.yt:hover {
+  border-color: rgba(255, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(255, 0, 0, 0.15);
+}
+.link-block.cf:hover {
+  border-color: rgba(49, 140, 231, 0.5);
+  box-shadow: 0 10px 30px rgba(49, 140, 231, 0.15);
+}
+.link-block.gh:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+}
+
+.avatar-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 242, 254, 0.3) 0%,
+    transparent 70%
+  );
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: pulse-glow 4s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
